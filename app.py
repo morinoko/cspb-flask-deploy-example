@@ -1,6 +1,8 @@
 from flask import Flask
 import psycopg2
 
+DATABASE_URL = "postgresql://cspb_example_db_user:BDrT7caz1cGMsEP0Kql2ofs0Dot7krOk@dpg-d7763kdm5p6s739fs2c0-a/cspb_example_db"
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -9,13 +11,13 @@ def hello_world():
 
 @app.route('/db_test')
 def db_test():
-    conn = psycopg2.connect("postgresql://cspb_example_db_user:BDrT7caz1cGMsEP0Kql2ofs0Dot7krOk@dpg-d7763kdm5p6s739fs2c0-a/cspb_example_db")
+    conn = psycopg2.connect(DATABASE_URL)
     conn.close()
     return 'Database connection successful!'
 
 @app.route('/db_create')
 def db_create():
-    conn = psycopg2.connect("postgresql://cspb_example_db_user:BDrT7caz1cGMsEP0Kql2ofs0Dot7krOk@dpg-d7763kdm5p6s739fs2c0-a/cspb_example_db")
+    conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor()
     cur.execute('''
         CREATE TABLE IF NOT EXISTS Basketball(
@@ -30,3 +32,20 @@ def db_create():
     cur.close()
     conn.close()
     return 'Table created successfully!'
+
+@app.route('/db_insert')
+def db_insert():
+    conn = psycopg2.connect(DATABASE_URL)
+    cur = conn.cursor()
+    cur.execute('''
+        INSERT INTO Basketball (First, Last, City, Name, Number)
+        Values
+        ('Jayson', 'Tatum', 'Boston', 'Celtics', 0),
+        ('Stephen', 'Curry', 'San Francisco', 'Warriors', 30),
+        ('Nikola', 'Jokic', 'Denver', 'Nuggets', 15),
+        ('Kawhi', 'Leonard', 'Los Angeles', 'Clippers', 2);
+    ''')
+    conn.commit()
+    cur.close()
+    conn.close()
+    return 'Basketball Table Populated'
